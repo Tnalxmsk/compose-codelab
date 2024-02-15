@@ -21,6 +21,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -76,15 +77,14 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun TipTimeLayout() {
-    var amountInput by remember { mutableStateOf("0") }
-    val amount = amountInput.toDoubleOrNull() ?: 0.0
-
+    var amountInput by remember { mutableStateOf("") }
     var tipInput by remember { mutableStateOf("") }
-    val tipPercent = tipInput.toDoubleOrNull() ?: 0.0
-
     var roundUp by remember { mutableStateOf(false) }
 
+    val amount = amountInput.toDoubleOrNull() ?: 0.0
+    val tipPercent = tipInput.toDoubleOrNull() ?: 0.0
     val tip = calculateTip(amount, tipPercent, roundUp)
+
     Column(
         modifier = Modifier
             .statusBarsPadding()
@@ -108,10 +108,8 @@ fun TipTimeLayout() {
                 imeAction = ImeAction.Next
             ),
             value = amountInput,
-            onValueChange = { amountInput = it },
-            modifier = Modifier
-                .padding(bottom = 32.dp)
-                .fillMaxWidth()
+            onValueChanged = { amountInput = it },
+            modifier = Modifier.padding(bottom = 32.dp).fillMaxWidth(),
         )
         EditNumberField(
             label = R.string.how_was_the_service,
@@ -121,10 +119,8 @@ fun TipTimeLayout() {
                 imeAction = ImeAction.Done
             ),
             value = tipInput,
-            onValueChange = { tipInput = it },
-            modifier = Modifier
-                .padding(bottom = 32.dp)
-                .fillMaxWidth()
+            onValueChanged = { tipInput = it },
+            modifier = Modifier.padding(bottom = 32.dp).fillMaxWidth(),
         )
         RoundTheTipRow(
             roundUp = roundUp,
@@ -145,17 +141,17 @@ fun EditNumberField(
     @DrawableRes leadingIcon: Int,
     keyboardOptions: KeyboardOptions,
     value: String,
-    onValueChange: (String) -> Unit,
+    onValueChanged: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     TextField(
         value = value,
-        leadingIcon = { Icon(painter = painterResource(id = leadingIcon), contentDescription = null) },
-        onValueChange = onValueChange,
         singleLine = true,
-        label = { Text(text = stringResource(label)) },
-        keyboardOptions = keyboardOptions,
+        leadingIcon = { Icon(painter = painterResource(id = leadingIcon), null) },
         modifier = modifier,
+        onValueChange = onValueChanged,
+        label = { Text(stringResource(label)) },
+        keyboardOptions = keyboardOptions
     )
 }
 
@@ -163,16 +159,17 @@ fun EditNumberField(
 fun RoundTheTipRow(
     roundUp: Boolean,
     onRoundUpChanged: (Boolean) -> Unit,
-    modifier: Modifier = Modifier) {
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .size(48.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = stringResource(id = R.string.round_up_tip))
+        Text(text = stringResource(R.string.round_up_tip))
         Switch(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentWidth(Alignment.End),
             checked = roundUp,
@@ -186,7 +183,8 @@ fun RoundTheTipRow(
  * according to the local currency.
  * Example would be "$10.00".
  */
-private fun calculateTip(amount: Double, tipPercent: Double = 15.0, roundUp: Boolean): String {
+@VisibleForTesting
+internal fun calculateTip(amount: Double, tipPercent: Double = 15.0, roundUp: Boolean): String {
     var tip = tipPercent / 100 * amount
     if (roundUp) {
         tip = kotlin.math.ceil(tip)
