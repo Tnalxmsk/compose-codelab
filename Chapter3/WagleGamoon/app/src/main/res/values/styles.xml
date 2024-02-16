@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Widget.Material3.Toolbar">
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="BottomNavigationStyle">
+        <item name="background">@color/blue_light</item>
+        <item name="itemRippleColor">@null</item>
+        <item name="itemIconTint">@color/selector_bottom_navigation</item>
+        <item name="itemTextColor">@color/selector_bottom_navigation</item>
+        <item name="itemActiveIndicatorStyle">@android:color/transparent</item>
+    </style>
+</resources>
